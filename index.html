@@ -145,7 +145,16 @@ button{font-family:inherit}
   overflow:clip;box-shadow:0 12px 32px rgba(0,0,0,.45);min-height:540px}
 /* Inside the bezel the screen provides its own edge, so the plain box's border,
    radius and shadow would all double up. */
-.vp--phone{width:100%;max-width:440px;height:956px;border-radius:56px;border:0;
+/* 440 FIXED, not width:100% + max-width:440. The bezel is width:max-content,
+   so a percentage width made it size to the SCREEN'S intrinsic content width
+   instead of the device's: "Your website" is a short list of narrow rows, its
+   max-content came out at 333, and the whole phone shrank to 357x... on that
+   one screen and sprang back on every other. It hid for months because every
+   other screen happens to contain something at least 440 wide — a filter row,
+   a stats bar, the nav band — so the cap did the sizing and looked deliberate.
+   A device is a fixed object; its width must not be a function of the page
+   inside it. */
+.vp--phone{width:440px;height:956px;border-radius:56px;border:0;
   box-shadow:none;min-height:0;overflow-y:auto;overflow-x:hidden;
   scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .vp--phone::-webkit-scrollbar{display:none}
