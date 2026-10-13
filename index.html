@@ -83,7 +83,15 @@ button{font-family:inherit}
   background:transparent;color:var(--ink-2);font:700 11.5px/1 var(--sans);cursor:pointer}
 
 .stage{min-width:0}
+/* The breadcrumb ALWAYS takes its own row, so the bar is two rows on every
+   screen. Left to wrap on its own it sat inline on the short crumbs ("Admin ›
+   Your website") and broke to a second row on the long ones ("Admin › Your
+   work › Leads"), which changed the bar from 42px to 86px and dropped the
+   phone 44px down the page — the device appeared to jump every time you
+   navigated. The height of the chrome above a fixed object must not depend on
+   how long its label happens to be. */
 .stagebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.stagebar > .crumb{flex:1 0 100%}
 .vpsw{display:flex;gap:3px;padding:3px;background:var(--surface);border:1px solid var(--line);
   border-radius:8px}
 .vpsw__b{min-height:34px;padding:0 13px;border:0;border-radius:6px;background:transparent;
