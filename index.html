@@ -3,15 +3,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NGL — clickable flow prototype</title>
-<meta name="robots" content="noindex,nofollow">
-<style>
-.revbar{position:fixed;left:0;right:0;top:0;z-index:9999;background:#E94032;color:#fff;
-  font:700 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em;
-  text-transform:uppercase;text-align:center;padding:7px 12px}
-body{padding-top:30px}
-@media (max-width:560px){.revbar{font-size:9.5px;letter-spacing:.06em}body{padding-top:34px}}
-</style>
-<p class="revbar">Concept for review — not the live site · NGL Detail &amp; Coating</p>
 <!--
   Navigation and flow only. Low fidelity on purpose: this exists to make the
   routes and the branches tappable, not to be a second mock. design/mock-mobile.html
@@ -1118,6 +1109,64 @@ select.a__in{appearance:none;cursor:pointer;
     grid-column:1;grid-row:auto}
 }
 </style>
+<meta name="robots" content="noindex,nofollow">
+<style>
+/* ── The review bar ──────────────────────────────────────────────────────────
+   This block is injected AFTER the prototype's own stylesheet, and that is
+   load-bearing. Injected before it, the prototype's `body{padding:18px}` —
+   a shorthand, equal specificity, later in the cascade — silently reset the
+   padding-top that makes room for the bar, so the bar sat on top of the page
+   with no gap. It looked like a missing margin; it was a cascade order bug. */
+.revbar{position:fixed;left:0;right:0;top:0;z-index:9999;background:#E94032;color:#fff;
+  font:700 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em;
+  text-transform:uppercase;text-align:center;padding:7px 12px}
+body{padding-top:48px}   /* the prototype's own 18px, plus room for the bar */
+
+/* ── Phones ──────────────────────────────────────────────────────────────────
+   The prototype is a desktop working document: a 464px device mockup beside a
+   commentary panel, a switch rail and a flow map. Opened on a phone the page
+   measured 485px wide inside a 390px screen, so mobile browsers shrank the
+   whole thing to fit — and RE-FIT on every navigation, because each screen is
+   a different height. That is why the mock appeared to change size when you
+   tapped between screens.
+
+   Below 760px the scaffolding is dropped and the phone mock becomes the page:
+   no bezel, no rail, no commentary, no flow map, filling the real screen. The
+   client gets the site; the scaffolding was never for them.
+
+   `.vp` stays the scrollport rather than letting the window scroll — the
+   sticky call bar's IntersectionObserver is rooted in it, so making the window
+   scroll instead would stop the bar ever arriving. */
+@media (max-width:760px){
+  /* A flex column from body down to the viewport, so the bar takes whatever
+     height its text wraps to and the screen fills exactly the rest. The first
+     version reserved a hard 30px for it; at 390px the text wraps to two lines
+     and the bar is 42, so it sat 12px over the top of the page. Any fixed
+     number here is a guess that is wrong at some width — this has none. */
+  body{padding:0;margin:0;height:100svh;overflow:hidden;
+    display:flex;flex-direction:column}
+  .revbar{position:static;flex:0 0 auto}
+  .rail,.why,.map,.stagebar{display:none}
+  /* min-width:0 on every link of the chain. A flex item's default
+     min-width:auto refuses to shrink below its content, so one wide admin
+     table pushed the whole column out and the layout viewport grew with it:
+     measured 641px inside a 390px screen on Leads, which is the same
+     shrink-to-fit zoom wobble in a new disguise. width:100% + min-width:0
+     makes the device obey the screen instead of the content, and .vp keeps
+     its own overflow-x:hidden so wide content scrolls INSIDE the phone. */
+  .proto,.proto--desk{flex:1 1 auto;min-height:0;min-width:0;width:100%;
+    display:flex;flex-direction:column;max-width:none;gap:0}
+  .stage,.frame,.frame__bz{flex:1 1 auto;min-height:0;min-width:0;width:100%;
+    display:flex;flex-direction:column;margin:0}
+  .frame__btn,.frame__st,.frame__home{display:none}
+  .frame__bz{padding:0;border-radius:0;box-shadow:none}
+  .vp,.vp--phone{flex:1 1 auto;min-height:0;min-width:0;height:auto;
+    width:100%;max-width:100%;border-radius:0;overflow-x:hidden}
+  /* The 62px safe-area inset exists for the drawn status bar, which is gone. */
+  .vp--phone > .m{padding-top:0}
+}
+</style>
+<p class="revbar">Concept for review — not the live site · NGL Detail &amp; Coating</p>
 
 <div class="proto" id="proto">
   <div class="rail">
