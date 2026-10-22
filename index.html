@@ -81,6 +81,7 @@ button{font-family:inherit}
 .rail__sep{height:1px;background:var(--line);margin:16px 0}
 .rail__reset{width:100%;min-height:40px;border-radius:8px;border:1px solid var(--line-2);
   background:transparent;color:var(--ink-2);font:700 11.5px/1 var(--sans);cursor:pointer}
+.rail__reload{margin-top:2px}
 
 .stage{min-width:0}
 /* The breadcrumb ALWAYS takes its own row, so the bar is two rows on every
@@ -245,7 +246,10 @@ button{font-family:inherit}
 .m__h1{font-size:25px;margin-bottom:6px}
 .m__h2{font-size:19px;margin-bottom:5px}
 .m__p{font-size:12px;line-height:1.55;color:var(--m-ink-2)}
-.m__hero{position:relative}
+/* overflow:hidden holds a zoomed header photo inside the hero. The crop is a
+   CSS transform here, in the prototype only; the build serves a pre-cut file
+   (admin-spec.md §07c), so nothing is ever scaled on the public page. */
+.m__hero{position:relative;overflow:hidden}
 /* 340, not 160. The overlay is absolutely positioned over the bottom of this
    image, and at 160 it measured 177 TALL — the text block was bigger than the
    photograph it sat on, so the car was completely covered and the gradient ran
@@ -272,6 +276,91 @@ button{font-family:inherit}
 /* No price element. The card's bottom line is a contact CTA instead. */
 .m__cta{display:inline-flex;align-items:center;gap:5px;min-height:38px;font:800 11px/1 var(--m-sans);
   color:var(--m-accent-text);letter-spacing:.02em}
+/* TILE-1 (design/services-options.html §07). A service with details ends in
+   "See details" and opens them; one without keeps "Get a quote →" and goes to
+   the form as it always did. The WORDS carry the difference — colour alone may
+   not (README.md, accessibility bar) — so ink and a chevron, not a second red. */
+.m__cta--more{color:var(--m-ink);gap:6px}
+.m__cta--more::after{content:"";width:6px;height:6px;border-right:1.5px solid var(--m-accent-text);
+  border-bottom:1.5px solid var(--m-accent-text);transform:rotate(-45deg);margin-left:1px}
+
+/* ── SVC-2: the details open over the page ───────────────────────────────────
+   A sheet on a phone, a dialog on desktop. The build uses one <dialog> and
+   showModal(), which draws in the browser's top layer; here the top layer
+   would be the whole working document rather than the device, so this draws
+   the same thing as a layer over the part of the page in view, and locks the
+   scroll underneath it the way body:has(dialog[open]) does. Nothing behind it
+   moves, which is the reason SVC-2 won. */
+.m--layer{position:relative}
+.vp--lock{overflow:hidden!important}
+html.lock{overflow:hidden}
+.m__layer{position:absolute;left:0;right:0;z-index:20}
+.m__scrim{position:absolute;inset:0;width:100%;border:0;padding:0;background:rgba(5,6,8,.64);
+  cursor:default}
+.m__sheet{position:absolute;left:0;right:0;bottom:0;top:96px;background:var(--m-bg);
+  border-radius:16px 16px 0 0;border-top:1px solid var(--m-line-strong);display:flex;
+  flex-direction:column;overflow:hidden;box-shadow:0 -14px 40px rgba(0,0,0,.5)}
+.m__grab{width:40px;height:5px;border-radius:999px;background:var(--m-line-strong);
+  margin:8px auto 0;flex:0 0 auto}
+.m__sheettop{display:flex;align-items:center;gap:2px;padding:0 6px 2px 14px;flex:0 0 auto}
+.m__sheetstep{flex:1 1 0;font:700 11px/1 var(--m-mono);color:var(--m-ink-3)}
+.m__arrow,.m__x{width:44px;height:44px;flex:0 0 auto;display:grid;place-items:center;border:0;
+  border-radius:var(--m-r);background:transparent;color:var(--m-ink-2)}
+/* Drawn, not typed. As 22px text the × and chevrons added a twelfth font size
+   on phone and a thirteenth on desktop, over both of pubtype.mjs's bars. Their
+   names come from aria-label. */
+.m__x::before,.m__x::after{content:"";grid-area:1 / 1;width:17px;height:2px;border-radius:1px;
+  background:currentColor;transform:rotate(45deg)}
+.m__x::after{transform:rotate(-45deg)}
+.m__arrow::before{content:"";width:9px;height:9px;border-left:2px solid currentColor;
+  border-bottom:2px solid currentColor;transform:translateX(2px) rotate(45deg)}
+.m__arrow--next::before{transform:translateX(-2px) rotate(-135deg)}
+.m__arrow:hover,.m__x:hover{background:var(--m-card);color:var(--m-ink)}
+/* MEDIA-1 + VID-1. One photo or one clip from the gallery. A clip is its poster
+   until it is tapped — the page refuses embedded players, because one embed
+   per clip loads megabytes of YouTube before anyone presses play. His clips
+   are Shorts, so a 9:16 poster sits centred on a blurred copy of itself rather
+   than being cropped to a strip. */
+.m__smedia{position:relative;display:block;width:100%;flex:0 0 auto;aspect-ratio:16/9;
+  overflow:hidden;background:#0B0C0E;border:0;padding:0}
+.m__smedia img{width:100%;height:100%;object-fit:cover;display:block}
+.m__smedia iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.m__smedia--short .m__sblur{position:absolute;inset:-20px;width:calc(100% + 40px);
+  height:calc(100% + 40px);filter:blur(18px) brightness(.45)}
+.m__smedia--short .m__sportrait{position:relative;width:auto;height:100%;margin:0 auto;
+  aspect-ratio:9/16}
+.m__smedia .m__play{top:50%;width:54px;height:54px}
+.m__sheetscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.m__sheetbody{padding:16px 16px 18px}
+.m__sheett{font:750 19px/1.15 var(--m-sans);letter-spacing:-.022em;margin:0 0 8px;color:var(--m-ink)}
+.m__det{font-size:12px;line-height:1.6;color:var(--m-ink-2)}
+.m__pts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.m__pts li{display:flex;gap:10px;font-size:12px;line-height:1.45;color:var(--m-ink)}
+.m__pts li::before{content:"";flex:0 0 auto;width:6px;height:6px;border-radius:999px;
+  background:var(--m-accent-strong);margin-top:6px}
+.m__sheetfoot{flex:0 0 auto;display:flex;gap:8px;padding:12px 14px 30px;background:var(--m-hdr);
+  border-top:1px solid var(--m-line)}
+.m__sheetfoot .m__btn--2{color:var(--m-ink);border-color:var(--m-line-strong)}
+/* The text of every service with details is in the page, hidden, so it is in
+   the HTML a crawler reads; the open sheet shows it. Media is not: it loads on
+   open, so ten closed services cost no image requests. */
+.m__svcd[hidden]{display:none}
+/* Desktop: the same element, centred, media down the left. It never exceeds the
+   screen — the text column scrolls and the buttons stay pinned. */
+.m--desk .m__sheet{top:50%;left:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);
+  width:880px;max-width:calc(100% - 80px);max-height:calc(100% - 80px);border-radius:14px;
+  border:1px solid var(--m-line-strong);display:grid;grid-template-columns:420px 1fr;
+  grid-template-rows:auto 1fr auto;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.m--desk .m__sheet--bare{grid-template-columns:1fr;width:600px}
+.m--desk .m__grab{display:none}
+.m--desk .m__smedia{grid-column:1;grid-row:1 / -1;aspect-ratio:auto;height:100%;min-height:400px}
+.m--desk .m__sheettop,.m--desk .m__sheetscroll,.m--desk .m__sheetfoot{grid-column:-2}
+.m--desk .m__sheettop{padding:10px 8px 0 24px}
+.m--desk .m__sheetbody{padding:6px 24px 8px}
+.m--desk .m__sheett{font-size:34px;margin-bottom:10px}
+.m--desk .m__det,.m--desk .m__pts li{font-size:14px}
+.m--desk .m__pts li::before{margin-top:8px}
+.m--desk .m__sheetfoot{padding:18px 24px 24px;background:transparent;border:0}
 .m__seg{display:inline-flex;gap:2px;padding:3px;background:var(--m-alt);
   border:1px solid var(--m-line-strong);border-radius:999px;margin-top:11px}
 .m__segb{min-height:44px;padding:0 16px;border:0;border-radius:999px;background:transparent;
@@ -963,6 +1052,58 @@ select.a__in{appearance:none;cursor:pointer;
    the tapped tile was the last visible one. */
 .a__ed{grid-column:1 / -1;border:1px solid var(--a-line-3);border-radius:var(--a-r2);
   background:var(--a-surface);padding:13px 14px}
+/* The header crop. Two frames at the hero's true shapes, sharing ONE setting:
+   the focal point (x%, y%) is pinned at the same relative spot in both, so
+   dragging either moves both, and what he sees is what ships. The shade is the
+   hero's own gradient over the band its text measured — 177 of 340 on a phone,
+   375 of 560 on desktop — so he can see what the headline will cover. */
+.a__cropbox{margin:var(--a2) 0 var(--a3)}
+.a__crop{position:relative;overflow:hidden;border-radius:var(--a-r0);border:1px solid var(--a-line-3);
+  background:var(--a-sunken);cursor:grab;touch-action:none;user-select:none}
+.a__crop:active{cursor:grabbing}
+.a__crop img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.a__cropshade{position:absolute;left:0;right:0;bottom:0;pointer-events:none}
+.a__crop--desk .a__cropshade{background:linear-gradient(transparent 0%,rgba(0,0,0,.62) 30%,
+  rgba(0,0,0,.86) 100%)}
+.a__crop--phone .a__cropshade{background:linear-gradient(transparent,rgba(0,0,0,.78) 40%,
+  rgba(0,0,0,.9))}
+.a__cropghost{position:absolute;bottom:16%;display:flex;flex-direction:column;gap:4px;
+  pointer-events:none}
+.a__cropghost i{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.55)}
+.a__cropghost i:last-child{width:70%}
+.a__crop--desk .a__cropghost{left:11.8%;width:37%}
+.a__crop--phone .a__cropghost{left:5%;width:80%}
+.a__croptag{position:absolute;top:6px;left:6px;font:700 var(--a-f0)/1 var(--m-sans);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--a-ink);
+  background:rgba(16,19,23,.82);padding:4px 6px;border-radius:4px;pointer-events:none}
+.a__croprow{display:flex;gap:var(--a3);margin-top:var(--a2);align-items:flex-start}
+.a__crop--phone{flex:0 0 48%}
+.a__cropctl{flex:1 1 0;min-width:0}
+.a__range{width:100%;height:44px;margin:0 0 var(--a1);accent-color:var(--a-ink-2);cursor:pointer}
+.a__tog:disabled{opacity:.45;cursor:not-allowed}
+
+/* A service's details, edited in its own row (services-options.html §08).
+   EDIT-1: the "restricted rich editor" is two plain fields — one paragraph and
+   up to six one-line points — because the restriction that matters is
+   structural, and no stored markup means nothing to sanitise and a limit that
+   can be measured. */
+.a__svced{border-top:1px solid var(--a-line);margin-top:var(--a3);padding-top:var(--a3)}
+textarea.a__in{display:block;padding:11px 12px;line-height:1.5;resize:vertical}
+textarea.a__in--det{min-height:150px}    /* five lines of the measured limit, and a sixth of air */
+/* Two rows, not one: a 55-character point does not fit a single-line input
+   beside its grip, ↑ and ×, and a point he cannot read whole is one he cannot
+   check. Enter is refused — a point is one line on the site. */
+textarea.a__in--pt{min-height:44px;padding:7px 10px;line-height:1.4;resize:none}
+.a__pt{display:flex;align-items:center;gap:4px;margin-bottom:var(--a1);border-radius:var(--a-r)}
+.a__pt .a__in{flex:1 1 0;min-width:0}
+.a__pt .a__btn{width:44px;padding:0;flex:0 0 auto}
+.a__mpick{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--a2);margin-top:var(--a2)}
+.a__mpickb{position:relative;display:block;width:100%;min-height:44px;padding:0;overflow:hidden;
+  border:1px solid var(--a-line-2);border-radius:var(--a-r);background:var(--a-surface)}
+.a__mpickb img{width:100%;height:72px;object-fit:cover;display:block}
+.a__mpickb--on{border-color:var(--a-ok);box-shadow:0 0 0 1px var(--a-ok)}
+.a__mpickb i{position:absolute;left:5px;bottom:5px;font:600 var(--a-f0)/1 var(--m-mono);
+  font-style:normal;color:var(--a-ink);background:rgba(16,19,23,.84);padding:3px 5px;border-radius:4px}
 .a__tile{border:1px solid var(--a-line-2);border-radius:var(--a-r);overflow:hidden;
   background:var(--a-surface);text-align:left;padding:0;display:block;width:100%}
 .a__tile:hover{border-color:var(--a-line-3)}
@@ -1200,6 +1341,10 @@ body{padding-top:48px}   /* the prototype's own 18px, plus room for the bar */
     <div class="rail__h rail__h--s">Simulate a branch</div>
     <p class="rail__note">Not questions — runtime states the build has to handle.</p>
     <div id="ssw"></div>
+    <!-- A visitor's page load draws the header photo; render() must not, or it
+         would change on every keystroke. This is the page load, on demand. -->
+    <button class="rail__reset rail__reload" data-act="reload">↻ Reload the page — draw the
+      header photo again</button>
     <div class="rail__sep"></div>
     <button class="rail__reset" data-act="reset">Reset everything</button>
   </div>
@@ -1279,19 +1424,45 @@ const GROUND = { hdr:'#0E1013', ft:'#0E1013' }
 const TEL = '(678) 740-1506'
 const CUST = { name:'Dale R.', phone:'(770) 555-0148', car:'2023 Chevrolet Corvette' }
 
+/* `det`, `pts` and `media` are what a tile opens into (design/services-
+   options.html, SVC-2). The copy is HIS, lifted from the live site's service
+   sections and its "Benefits of Ceramic Coating" list, lightly edited — not
+   ours. The four rows cover the four states: a photo, a clip, no media, and no
+   details at all. Ultimate Detailing's live copy is literally "call for
+   details", so it has none, and its tile still goes straight to the form. */
 const SEED_SERVICES = [
-  { id:1, n:'Ceramic Coating',       d:'Body, glass and wheels. 1.5, 3 or 5 year protection.', on:true },
-  { id:2, n:'Paint Correction',      d:'Cut, polish and wet sanding to remove defects.',       on:true },
-  { id:3, n:'Ultimate Detailing',    d:'Full interior and exterior restoration.',              on:true },
-  { id:4, n:'Paint Protection Film', d:'Rock-chip protection for high-impact panels.',         on:true },
+  { id:1, n:'Ceramic Coating',       d:'Body, glass and wheels. 1.5, 3 or 5 year protection.', on:true,
+    det:'A deep contamination wash, iron and tar removal and a clay bar take the embedded dirt out '
+      + 'of the clear coat, then a one or two step paint correction. Then we lock it in with 1.5, 3 '
+      + 'or 5 years of ceramic coating on the body, glass and wheels.',
+    pts:['Removes swirls and factory paint defects', 'Repels bird droppings, hard water and bugs',
+         'Fewer washes, easier upkeep', 'Gloss and water beading for years', 'Protected from UV'],
+    media:1 },
+  { id:2, n:'Paint Correction',      d:'Cut, polish and wet sanding to remove defects.',       on:true,
+    det:'A heavy cut compound with cutting pads, then a final polish with a finishing pad. Every '
+      + 'stage includes wet sanding to take out the deeper scratches.',
+    pts:['Heavy cut compound with cutting pads', 'Final polish with a finishing pad',
+         'Wet sanding for the deeper scratches'],
+    media:6 },
+  { id:3, n:'Ultimate Detailing',    d:'Full interior and exterior restoration.',              on:true,
+    det:'', pts:[], media:null },
+  { id:4, n:'Paint Protection Film', d:'Rock-chip protection for high-impact panels.',         on:true,
+    det:'Paint protection film protects your vehicle against rock chips and much more.',
+    pts:[], media:null },
 ]
 /* `kind` is not new: build-plan.md's gallery_items has carried
    kind('photo'|'video') and youtube_id from the start, and admin-spec.md §07b
    puts both in the published snapshot. The prototype modelled only photos,
    which left the Videos tab on the public page as a button with no handler —
    a false affordance, in the one document a builder copies from. */
+/* `hero` puts a photo in the header rotation, independent of `on`: a photo can
+   head the page without taking a slot in the rail. `crop` is the focal point
+   and zoom, shared by the phone and desktop cuts. The Corvette was the
+   hard-coded hero before the header was driven from here, so it is the seed's
+   one header photo and the page renders exactly as it did. */
 const SEED_GALLERY = [
-  { id:1, kind:'photo', f:'IMG_3964.jpeg', c:'Corvette C8 · 5 yr coating',  src:'own', on:true },
+  { id:1, kind:'photo', f:'IMG_3964.jpeg', c:'Corvette C8 · 5 yr coating',  src:'own', on:true,
+    hero:true, crop:{ x:50, y:50, z:1 } },
   { id:2, kind:'photo', f:'IMG_4229.jpeg', c:'Ford Raptor · coating',       src:'ig',  on:true },
   { id:3, kind:'photo', f:'IMG_3713.jpg',  c:'Lifted Silverado · detail',   src:'own', on:true },
   { id:4, kind:'photo', f:'IMG_2964.jpg',  c:'Porsche Cayman · correction', src:'ig',  on:false },
@@ -1314,6 +1485,20 @@ const SEED_GALLERY = [
   { id:11, kind:'video', yt:'U5UMiVYo4Ow', c:'Full walkaround · Raptor', wide:true,
     src:'own', on:true },
 ]
+/* Pixel size of each source photo, measured with `sips`. The build records
+   these at upload as orig_w/orig_h; the crop needs the width to know how far
+   it can zoom before the desktop header goes soft. */
+const PHOTO_DIMS = {
+  'IMG_2864.jpg':[1789, 1025], 'IMG_2961.jpg':[2500, 3333], 'IMG_2964.jpg':[2500, 1875],
+  'IMG_3409.jpeg':[2500, 1732], 'IMG_3713.jpg':[2500, 1273], 'IMG_3910.jpg':[2500, 3333],
+  'IMG_3964.jpeg':[2500, 1470], 'IMG_3986.jpeg':[1050, 788], 'IMG_4229.jpeg':[2500, 1609],
+}
+/* The hero's two shapes, and the band its text covers in each — measured off
+   this file: overlay 177 of 340 at 440, 375 of 560 on desktop. */
+const HERO_PHONE = { w:440, h:340, band:177 }
+const HERO_DESK  = { w:1440, h:560, band:375 }
+const HERO_MAX_ZOOM = 2
+const CROP0 = { x:50, y:50, z:1 }
 const SEED_REVIEWS = [
   { id:1, q:'Mason exceeds expectations and the attention to detail that he treated my 2023 C8 was above and beyond what I expected.', a:'Corvette C8 owner', s:5, on:false },
 ]
@@ -1341,6 +1526,20 @@ let lostFor              /* which lead is being asked why it was lost */
 let confirmAct           /* a destructive action waiting on a yes: {act, label, …} */
 let lastPub              /* the snapshot Publish overwrote, for one undo */
 let previewed            /* the draft exactly as it was when he last previewed */
+/* Which header photo this page load drew, as a fraction rather than an index so
+   the same draw maps onto whatever set is rendered — the live one, or the
+   draft's in Preview. Drawn on a page load only: reset(), arriving at the page,
+   the rail's Reload. Never in render(), which runs on every keystroke. */
+let heroPick
+let cropDrag             /* a drag on a header crop frame: {f, g, x0, y0, c0, moved} */
+/* SVC-2. Which service's sheet is open (its slug), whether its clip has been
+   tapped, where the layer sits, and whether opening it pushed a history entry —
+   a sheet opened from a deep link did not, and closing it must not step back
+   off the page. */
+let svcSheet, svcPlay, svcBox, svcPushed
+/* The details editor in the admin: which service row is open, and its media
+   picker. */
+let svcEdit, svcPick, svcPickKind, svcPickMax
 
 function reset () {
   S = JSON.parse(JSON.stringify(DEFAULTS))
@@ -1359,7 +1558,9 @@ function reset () {
   galKind = 'photo'
   wfOpen = false; wfQ = ''; schedWin = 30; dragSrc = null
   doneSheet = null; lostFor = null; confirmAct = null; lastPub = null; closeMax = 8
-  previewed = null
+  previewed = null; cropDrag = null; rollHero()
+  svcClose(); svcSheet = null; svcPlay = false; svcBox = null; svcPushed = false
+  svcEdit = null; svcPick = false; svcPickKind = 'photo'; svcPickMax = 9
   go('home', true)
 }
 const clone = o => JSON.parse(JSON.stringify(o))
@@ -1421,10 +1622,14 @@ function setVolume (v) {
   }
   /* Instagram running for two years at roughly three posts a week. */
   const SEED_PHOTOS = SEED_GALLERY.filter(g => g.kind !== 'video')
+  /* Four of his own uploads join the header rotation, one of them hidden from
+     the rail (i = 0), because the two are independent and a fixture that never
+     separates them cannot show it. */
   for (let i = 0; i < 300; i++) draft.gallery.push({ id:++id, kind:'photo',
     f:SEED_PHOTOS[i % SEED_PHOTOS.length].f,
     c:VOL_CARS[i % 8] + ' \u00b7 ' + SEED_SERVICES[i % 4].n,
-    src:i % 3 ? 'ig' : 'own', on:i % 17 !== 0 })
+    src:i % 3 ? 'ig' : 'own', on:i % 17 !== 0,
+    ...(i % 75 === 0 ? { hero:true, crop:{ ...CROP0 } } : {}) })
   /* And the channel, at roughly one clip a fortnight. Without these the video
      rail and its cap were only ever exercised at six, which is under the
      ceiling — the same blind spot that let the public page ship with no cap at
@@ -1438,8 +1643,11 @@ function setVolume (v) {
     q:'Outstanding work on my ' + VOL_CARS[i % 8] + '. The paint looks better than it did new and '
       + 'the turnaround was quicker than he quoted.',
     a:VOL_CARS[i % 8] + ' owner', s:5, on:i % 2 === 0 })
+  /* None with details: a shop that adds a service a quarter writes the tile
+     line and gets to the paragraph later, if ever — which is what TILE-1 is for. */
   for (let i = 0; i < 10; i++) draft.services.push({ id:++id, n:'Service ' + (i + 5),
-    d:'Added as the shop grew. One line of description.', on:i % 3 !== 0 })
+    d:'Added as the shop grew. One line of description.', on:i % 3 !== 0,
+    det:'', pts:[], media:null })
   /* Every one of these used to be pushed with leadId:null \u2014 400 jobs belonging
      to nobody, each carrying a customer's name in its title so the Schedule
      LOOKED like two years of work while the data said two years of blocked-out
@@ -1572,6 +1780,32 @@ const imgOf = g => g.kind === 'video' ? PH + 'video/' + g.yt + '.jpg' : PH + g.f
    same rule for both services. Hand-added rows (src 'own') never depend on one. */
 const connected = g => g.src === 'ig' ? S.q.instagram === 'on'
   : g.src === 'yt' ? S.q.youtube === 'on' : true
+/* ── The header photo ────────────────────────────────────────────────────────
+   Only his own uploads can head the page: the crop is cut from the original,
+   and a synced row can vanish on the next sync, which would break the
+   at-least-one rule from outside the admin. Never a clip. */
+const heroOk = g => g.kind !== 'video' && g.src === 'own'
+const heroSet = d => d.gallery.filter(g => g.hero && heroOk(g))
+const rollHero = () => { heroPick = Math.random() }
+/* At least one is enforced where it can be broken (the toggle and Delete), so
+   an empty set is unreachable; the Corvette stands in rather than an empty box
+   if a forced state ever produces one. */
+const heroOf = d => { const s = heroSet(d)
+  return s.length ? s[Math.floor(heroPick * s.length) % s.length] : { f:'IMG_3964.jpeg' } }
+const zoomMax = g => { const w = (PHOTO_DIMS[g.f] || [HERO_DESK.w])[0]
+  return Math.round(Math.max(1, Math.min(HERO_MAX_ZOOM, w / HERO_DESK.w)) * 100) / 100 }
+/* object-position pins the image's (x%, y%) at the frame's (x%, y%) for any
+   frame shape, and scaling about that same point keeps it pinned — which is why
+   one setting serves both cuts. */
+const cropCss = c => 'object-position:' + c.x + '% ' + c.y + '%'
+  + (c.z > 1 ? ';transform:scale(' + c.z + ');transform-origin:' + c.x + '% ' + c.y + '%' : '')
+const isCrop0 = c => !c || (c.x === 50 && c.y === 50 && c.z === 1)
+/* A gallery row leaves the draft, and any service showing it lets go of it. */
+const dropGalleryItem = id => {
+  draft.gallery = draft.gallery.filter(g => g.id !== id)
+  draft.services.forEach(s => { if (s.media === id) s.media = null })
+}
+
 const liveGallery = () => live.gallery.filter(g => g.on && connected(g))
 const livePhotos = () => liveGallery().filter(g => g.kind !== 'video')
 const liveVideos = () => liveGallery().filter(g => g.kind === 'video')
@@ -1646,6 +1880,91 @@ function recapLine () {
     + '.<br>We will call <b>' + (sent.phone || live.biz.phone || TEL) + '</b>.'
 }
 
+/* ── What we do: tiles that open ─────────────────────────────────────────────
+   design/services-options.html, built as recommended: SVC-2 (a sheet over the
+   page) with TILE-1, EDIT-1, MEDIA-1, VID-1 and LINK-1. */
+const slugOf = s => s.n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const hasDetails = s => !!(s.det || '').trim()
+/* Media is a gallery row, so it follows the gallery's own rules: gone if it was
+   deleted, gone while the account that synced it is disconnected. */
+const svcMedia = (s, d) => {
+  const g = s.media && d.gallery.find(x => x.id === s.media)
+  return g && connected(g) ? g : null
+}
+
+/* TILE-1. Same box either way — the page bar has 57px of headroom at two
+   years, so a taller tile would fail it. Only the last line changes. */
+const svcTile = s => hasDetails(s)
+  ? '<button class="m__card" data-act="svcOpen" data-slug="' + slugOf(s) + '" aria-haspopup="dialog">'
+    + '<div class="m__cardh">' + s.n + '</div><p>' + s.d + '</p>'
+    + '<span class="m__cta m__cta--more">See details</span></button>'
+  : '<button class="m__card" data-act="toQuote" data-svc="' + s.n + '">'
+    + '<div class="m__cardh">' + s.n + '</div><p>' + s.d + '</p>'
+    + '<span class="m__cta">Get a quote →</span></button>'
+
+/* The words of a service's details. Rendered for every service that has them,
+   hidden, so they are in the HTML whether or not anyone opens a sheet — a
+   crawler reads them, and with scripts off `:target` can show them in place.
+   The id is the slug, which is also LINK-1's address. */
+const svcWords = s => '<h3 class="m__sheett">' + s.n + '</h3>'
+  + '<p class="m__det">' + esc(s.det) + '</p>'
+  + (s.pts && s.pts.some(p => p.trim())
+    ? '<ul class="m__pts">' + s.pts.filter(p => p.trim()).map(p => '<li>' + esc(p) + '</li>').join('')
+      + '</ul>' : '')
+const svcText = s => '<section class="m__svcd" id="' + slugOf(s) + '" hidden>' + svcWords(s)
+  + '</section>'
+
+function svcMediaHtml (g) {
+  if (!g) return ''
+  if (g.kind !== 'video') return '<div class="m__smedia"><img src="' + imgOf(g) + '" alt=""></div>'
+  /* YouTube refuses an embed that arrives without a Referer — Error 153,
+     "video player configuration error". The attribute pins the policy on THIS
+     request, so a page-wide header cannot strip it: Cloudflare's "Add security
+     headers" managed transform sets Referrer-Policy: same-origin, which would.
+     Opened from disk the page has no origin to send at all, so the player
+     only works served over http(s). build-plan.md, Service sheet. */
+  if (svcPlay) return '<div class="m__smedia"><iframe src="https://www.youtube-nocookie.com/embed/'
+    + g.yt + '?autoplay=1&amp;playsinline=1" title="' + esc(g.c) + '" '
+    + 'referrerpolicy="strict-origin-when-cross-origin" '
+    + 'allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>'
+  const src = imgOf(g)
+  return '<button class="m__smedia' + (g.wide ? '' : ' m__smedia--short') + '" data-act="svcPlay" '
+    + 'aria-label="Play video: ' + esc(g.c) + '">'
+    + (g.wide ? '<img src="' + src + '" alt="">'
+      : '<img class="m__sblur" src="' + src + '" alt=""><img class="m__sportrait" src="' + src + '" alt="">')
+    + '<span class="m__play" aria-hidden="true"></span></button>'
+}
+
+/* The open sheet. ‹ › step between the services that HAVE details and wrap at
+   the ends, so neither arrow is ever a control that cannot go anywhere; with
+   one such service there are no arrows and no "1 of 1". */
+function svcLayer () {
+  const list = liveServices().filter(hasDetails)
+  const i = list.findIndex(s => slugOf(s) === svcSheet)
+  if (i < 0 || !svcBox) return ''
+  const s = list[i], g = svcMedia(s, live)
+  return '<div class="m__layer" style="top:' + svcBox.top + 'px;height:' + svcBox.h + 'px">'
+    + '<button class="m__scrim" data-act="svcClose" aria-label="Close" tabindex="-1"></button>'
+    + '<div class="m__sheet' + (g ? '' : ' m__sheet--bare') + '" role="dialog" aria-modal="true" '
+    + 'aria-label="' + esc(s.n) + '">'
+    + '<div class="m__grab" aria-hidden="true"></div>'
+    + '<div class="m__sheettop">'
+    + (list.length > 1
+      ? '<span class="m__sheetstep">' + (i + 1) + ' of ' + list.length + '</span>'
+        + '<button class="m__arrow" data-act="svcStep" data-d="-1" aria-label="Previous: '
+        + esc(list[(i - 1 + list.length) % list.length].n) + '"></button>'
+        + '<button class="m__arrow m__arrow--next" data-act="svcStep" data-d="1" aria-label="Next: '
+        + esc(list[(i + 1) % list.length].n) + '"></button>'
+      : '<span class="m__sheetstep"></span>')
+    + '<button class="m__x" data-act="svcClose" aria-label="Close"></button></div>'
+    + svcMediaHtml(g)
+    + '<div class="m__sheetscroll"><div class="m__sheetbody">' + svcWords(s) + '</div></div>'
+    + '<div class="m__sheetfoot">'
+    + '<button class="m__btn m__btn--1" data-act="toQuote" data-svc="' + s.n + '">Get a quote</button>'
+    + '<button class="m__btn m__btn--2" data-act="call">Call</button></div>'
+    + '</div></div>'
+}
+
 function screenHome () {
   /* Capped for the page, counted in full for the link at the end of each — the
      count is the proof, the cap is the courtesy. */
@@ -1661,8 +1980,13 @@ function screenHome () {
   const mode = bothKinds ? galMode : (allClips.length && !allPhotos.length ? 'video' : 'photo')
   const allItems = mode === 'video' ? allClips : allPhotos
   const items = allItems.slice(0, mode === 'video' ? PUB_VIDEOS : PUB_PHOTOS)
+  /* One of his header photos, drawn when the page loaded. The style is only
+     written when the crop moved off centre, so an untouched photo renders the
+     same markup the hard-coded hero did. */
+  const hero = heroOf(live)
   return hdr()
-    + '<div class="m__hero"><img src="' + PH + 'IMG_3964.jpeg" alt="">'
+    + '<div class="m__hero"><img src="' + PH + hero.f + '" alt=""'
+    + (isCrop0(hero.crop) ? '' : ' style="' + cropCss(hero.crop) + '"') + '>'
     + '<div class="m__hero-c">' + inner('<p class="m__eyebrow">Lawrenceville, Georgia</p>'
       + '<h1 class="m__h1">Ceramic Coating &amp; Paint Correction</h1>'
       + '<p class="m__hero-sub">System X accredited. Swirl removal, gloss and '
@@ -1676,10 +2000,8 @@ function screenHome () {
       + '<h2 class="m__h2">' + liveServices().length + ' services, one shop</h2>'
       + '<p class="m__p">Every job is quoted on the car in front of us. Tell us what you have and '
       + 'we will come back with a number the same day.</p>'
-      + '<div class="m__cards">' + liveServices().map(s =>
-        '<button class="m__card" data-act="toQuote" data-svc="' + s.n + '">'
-        + '<div class="m__cardh">' + s.n + '</div><p>' + s.d + '</p>'
-        + '<span class="m__cta">Get a quote →</span></button>').join('') + '</div>') + '</div>'
+      + '<div class="m__cards">' + liveServices().map(svcTile).join('') + '</div>'
+      + liveServices().filter(hasDetails).map(svcText).join('')) + '</div>'
 
     /* "Pick how long it lasts" — the section admin-spec.md §05.8 says the Tiers
        screen renders as. It did not exist on the public page, so editing a tier
@@ -1906,6 +2228,7 @@ function screenHome () {
     + (D() ? '' : '<div class="m__callbar">'
       + '<button class="m__btn m__btn--1" data-act="call">Call now</button>'
       + '<button class="m__btn m__btn--2" data-act="toQuote">Free quote</button></div>')
+    + svcLayer()
 }
 
 /* The bar is revealed by an IntersectionObserver on the hero CTAs, which is
@@ -2262,11 +2585,20 @@ function adminWebsite () {
       + (draft.tiers.find(t => t.pop) || { n:'none' }).n + ' marked most popular'],
     ['Services', draft.services.filter(x => x.on).length + ' live'
       + (draft.services.some(x => !x.on) ? ' \u00b7 ' + draft.services.filter(x => !x.on).length
-          + ' hidden' : '') + ' \u00b7 no prices anywhere'],
-    ['Gallery', draft.galleryOn
-      ? gal.length + ' photo' + (gal.length === 1 ? '' : 's')
+          + ' hidden' : '')
+      + ' \u00b7 ' + draft.services.filter(x => x.on && hasDetails(x)).length + ' open into details'
+      + ' \u00b7 no prices anywhere'],
+    /* The header count is said even with the rail switched off: the header
+       draws from the gallery but is not part of the rail. */
+    /* Photos and clips counted apart. This read "9 photos" over 2 photos and 7
+       clips: the count ran over the whole table after the two kinds became two
+       rails. */
+    ['Gallery', (draft.galleryOn
+      ? [['photo', gal.filter(g => g.kind !== 'video')], ['video', gal.filter(g => g.kind === 'video')]]
+          .map(([k, xs]) => xs.length + ' ' + k + (xs.length === 1 ? '' : 's')).join(' \u00b7 ')
         + (gal.filter(g => !g.on).length ? ' \u00b7 ' + gal.filter(g => !g.on).length + ' hidden' : '')
-      : 'The whole rail is switched off'],
+      : 'The whole rail is switched off')
+      + ' \u00b7 ' + heroSet(draft).length + ' in the header'],
     ['Reviews', draft.reviews.length
       ? draft.reviews.filter(r => r.on).length + ' shown \u00b7 '
         + draft.reviews.filter(r => !r.on).length + ' hidden'
@@ -2401,9 +2733,12 @@ const confirmBar = () => {
     + '<button class="a__btn a__btn--ghost" data-act="confirmNo">Keep it</button></div>'
 }
 
-const tog = (on, key, label, idx) => '<div class="a__togwrap">'
+/* `locked` is for a switch a rule holds in place — the last header photo. It
+   stays visible, with the reason beside it, rather than vanishing. */
+const tog = (on, key, label, idx, locked) => '<div class="a__togwrap">'
   + '<button class="a__tog' + (on ? ' a__tog--on' : '') + '" data-act="toggle" data-key="' + key + '"'
-  + (idx === undefined ? '' : ' data-idx="' + idx + '"') + '></button>'
+  + (idx === undefined ? '' : ' data-idx="' + idx + '"')
+  + (locked ? ' disabled aria-disabled="true"' : '') + '></button>'
   + '<span class="a__togl">' + label + '</span></div>'
 
 /* A pill means THIS ROW WANTS SOMETHING FROM YOU. Everything else is a fact and
@@ -3132,8 +3467,14 @@ const initials = n => n.split(/\s+/).filter(Boolean).slice(0, 2)
 
    Quiet until 80%, warn after, and the two with sibling effects are hard stops.
    admin-coverage.html §09. */
+/* svcDetails and svcPoint are measured in design/services-options.html §08:
+   five lines and one line of the narrowest place they set, the desktop
+   dialog's text column. Hard, because past them the sheet stops fitting one
+   phone screen above its pinned buttons. */
 const LIMITS = { svcName:[44, true], svcBlurb:[82, true], caption:[54, false],
-                 quote:[376, false], attrib:[66, false] }
+                 quote:[376, false], attrib:[66, false],
+                 svcDetails:[295, true], svcPoint:[55, true] }
+const SVC_POINTS = 6     /* six fit one phone screen with a photo above: §09's hard case */
 const counter = (key, used) => {
   const [max, hard] = LIMITS[key]
   const near = used > max * 0.8
@@ -3148,12 +3489,77 @@ const counter = (key, used) => {
    \u25b2 Up / \u25bc Down, which cost 13 taps to promote the last service; replacing the
    pair with one grip also takes 28 controls off this screen at two-year volume.
    admin-hardening.html \u00a706. */
+/* What a service's row says about its details, so he can see which tiles open
+   without opening each one. */
+const svcSummary = sv => {
+  if (!hasDetails(sv)) return 'No details \u00b7 the tile goes straight to the quote'
+  const g = svcMedia(sv, draft), n = (sv.pts || []).filter(p => p.trim()).length
+  return 'Details' + (g ? ' \u00b7 ' + (g.kind === 'video' ? 'video' : 'photo') : '')
+    + (n ? ' \u00b7 ' + n + ' point' + (n > 1 ? 's' : '') : '')
+}
+
+/* The details a tile opens into, edited in its own row.
+   EDIT-1: one paragraph and up to six one-line points, as plain fields with
+   hard limits. MEDIA-1: one photo or clip PICKED FROM THE GALLERY rather than
+   uploaded a second time \u2014 a hidden photo can be used here, the same rule as
+   the header photos. LINK-1: the address that opens it. */
+function svcEditor (sv) {
+  const g = svcMedia(sv, draft), pts = sv.pts || []
+  const kind = draft.gallery.filter(x => connected(x)
+    && (x.kind === 'video') === (svcPickKind === 'video'))
+  const picker = !svcPick ? '' : '<div class="a__seg" style="margin:var(--a2) 0 0">'
+      + ['photo', 'video'].map(k => '<button class="a__segb' + (svcPickKind === k ? ' a__segb--on' : '')
+        + '" data-act="svcPickKind" data-k="' + k + '">' + (k === 'photo' ? 'Photos' : 'Videos')
+        + '</button>').join('') + '</div>'
+    + '<div class="a__mpick">' + kind.slice(0, svcPickMax).map(x => '<button class="a__mpickb'
+      + (x.id === sv.media ? ' a__mpickb--on' : '') + '" data-act="svcMedia" data-id="' + x.id + '" '
+      + 'aria-label="Use ' + esc(x.c) + '"><img src="' + imgOf(x) + '" alt="">'
+      + (x.id === sv.media ? '<i>using</i>' : x.on ? '' : '<i>hidden</i>') + '</button>').join('')
+    + '</div>' + moreBtn(kind.length, svcPickMax, 'svcPickMore')
+  return '<div class="a__svced">'
+    + '<span class="a__lab" style="margin-top:0">Photo or video</span>'
+    + (g ? '<div class="a__row" style="margin-bottom:0"><div class="a__thumb"><img src="' + imgOf(g)
+        + '" alt=""></div><div class="a__grow"><div class="a__t">' + g.c + '</div>'
+        + '<div class="a__m">' + (g.kind === 'video' ? 'Video' : 'Photo') + ' \u00b7 from your gallery'
+        + (g.on ? '' : ' \u00b7 hidden from the rail') + '</div></div>'
+        + '<button class="a__btn a__btn--q a__btn--ghost" data-act="svcMediaOff">Remove</button></div>'
+      : '<p class="a__hint" style="margin:0">None. The details open at the title.</p>')
+    + '<button class="a__btn a__btn--q a__btn--full" data-act="svcPick" style="margin-top:var(--a2)">'
+    + (svcPick ? 'Close the gallery' : g ? 'Change' : '\uff0b Choose from your gallery') + '</button>'
+    + picker
+    + '<span class="a__lab">Details<span data-cnt="det">' + counter('svcDetails', (sv.det || '').length)
+    + '</span></span>'
+    + '<textarea class="a__in a__in--det" data-svcdet data-keep="det-' + sv.id + '" maxlength="'
+    + LIMITS.svcDetails[0] + '" aria-label="Details">' + esc(sv.det || '') + '</textarea>'
+    + '<p class="a__hint" style="margin-top:6px">Leave this empty and the tile goes straight to the '
+    + 'quote form, as it does today.</p>'
+    + '<span class="a__lab">Points<span class="a__count">' + pts.length + ' of ' + SVC_POINTS
+    + ' \u00b7 ' + LIMITS.svcPoint[0] + ' characters each</span></span>'
+    + pts.map((p, i) => '<div class="a__pt" data-drop="point" data-idx="' + i + '">'
+      + gripFor('point', i)
+      + '<textarea class="a__in a__in--pt" rows="2" data-svcpt="' + i + '" data-keep="pt-' + sv.id + '-'
+      + i + '" maxlength="' + LIMITS.svcPoint[0] + '" aria-label="Point ' + (i + 1) + '">' + esc(p)
+      + '</textarea>'
+      + '<button class="a__btn a__btn--ghost" data-act="ptTop" data-idx="' + i + '" aria-label="Move to top"'
+      + (i === 0 ? ' disabled style="opacity:.3"' : '') + '>\u2191</button>'
+      + '<button class="a__btn a__btn--ghost" data-act="ptDel" data-idx="' + i + '" '
+      + 'aria-label="Remove point ' + (i + 1) + '">\u00d7</button></div>').join('')
+    /* At six the button goes, and the reason takes its place. */
+    + (pts.length < SVC_POINTS
+      ? '<button class="a__more" data-act="ptAdd">\uff0b Add a point</button>'
+      : '<p class="a__hint" style="margin-top:4px">Six is the most that fits one phone screen.</p>')
+    + '<div style="display:flex;gap:2px;margin:var(--a3) -6px -4px">'
+    + '<button class="a__btn a__btn--q a__btn--ghost" data-act="svcLink">Copy link</button>'
+    + '<button class="a__btn a__btn--q" style="margin-left:auto" data-act="svcEdit" data-id="' + sv.id
+    + '">Done</button></div></div>'
+}
+
 function adminServices () {
   const n = draft.services.length
   return '<div class="a__h">Services</div>'
-    + '<p class="a__hint">Title and description. <b>No prices</b> \u2014 each card ends in a '
-    + '"Get a quote" link that opens the form with that service already chosen. '
-    + 'Drag to reorder; the order here is the order on the site.</p>'
+    + '<p class="a__hint">Title, a line for the tile, and the details it opens into. <b>No prices</b>'
+    + ' \u2014 a service with no details goes straight to the quote form with that service already '
+    + 'chosen. Drag to reorder; the order here is the order on the site.</p>'
     + (adding === 'service'
       ? '<div class="a__panel"><div class="a__panelh"><b>New service</b>'
         + '<button class="a__btn a__btn--q" data-act="cancelAdd">Cancel</button></div>'
@@ -3172,15 +3578,19 @@ function adminServices () {
       + '<div style="display:flex;gap:9px;align-items:flex-start">'
       + gripFor('service', i)
       + '<div class="a__grow"><div class="a__t">' + sv.n + '</div>'
-      + '<div class="a__m">' + sv.d + '</div></div>'
+      + '<div class="a__m">' + sv.d + '</div>'
+      + '<div class="a__m"><b>' + svcSummary(sv) + '</b></div></div>'
       + tog(sv.on, 'service', sv.on ? 'live' : 'hidden', i) + '</div>'
+      + (svcEdit === sv.id ? svcEditor(sv)
       /* Quiet 44px footer: content leads, the rarest action is the quietest. */
-      + '<div style="display:flex;gap:2px;margin:4px -6px -4px">'
-      + '<button class="a__btn a__btn--q a__btn--ghost" data-act="svcTop" data-idx="' + i + '"'
-      + (i === 0 ? ' disabled style="opacity:.3"' : '') + '>\u2191 To top</button>'
-      + '<span class="a__pos" style="align-self:center;padding:0 4px">' + (i + 1) + ' of ' + n + '</span>'
-      + '<button class="a__btn a__btn--q a__btn--ghost" style="margin-left:auto" '
-      + 'data-act="delService" data-idx="' + i + '">Remove</button></div>'
+      : '<div style="display:flex;gap:2px;margin:4px -6px -4px">'
+        + '<button class="a__btn a__btn--q a__btn--ghost" data-act="svcTop" data-idx="' + i + '"'
+        + (i === 0 ? ' disabled style="opacity:.3"' : '') + '>\u2191 To top</button>'
+        + '<span class="a__pos" style="align-self:center;padding:0 4px">' + (i + 1) + ' of ' + n + '</span>'
+        + '<button class="a__btn a__btn--q" style="margin-left:auto" data-act="svcEdit" data-id="'
+        + sv.id + '">Details</button>'
+        + '<button class="a__btn a__btn--q a__btn--ghost" '
+        + 'data-act="delService" data-idx="' + i + '">Remove</button></div>')
       + '</div>').join('')
 }
 
@@ -3200,8 +3610,65 @@ const GAL_F = [
   { k:'all',    l:'All',       f:() => true },
   { k:'shown',  l:'Shown',     f:g => g.on },
   { k:'hidden', l:'Hidden',    f:g => !g.on },
+  /* At two years the four header photos are four tiles among 300. Photos only:
+     a clip can never be one. */
+  { k:'hero',   l:'Header',    f:g => !!g.hero && heroOk(g) },
   { k:'ig',     l:'Instagram', f:g => g.src === 'ig' },
 ]
+
+/* "Use in the header", in the photo editor. Absent for a photo that cannot
+   qualify rather than present and refusing — a synced photo or a clip gets no
+   row at all. The last header photo keeps its switch, locked, with the reason
+   beside it: the page always draws one. */
+function heroRow (g) {
+  if (!heroOk(g)) return ''
+  const set = heroSet(draft), last = g.hero && set.length === 1
+  return '<div class="a__row" style="margin-bottom:7px"><div class="a__grow">'
+    + '<div class="a__t">Use in the header</div><div class="a__m">'
+    + (last ? 'The header always needs a photo. Add another before taking this one out.'
+      : g.hero ? '<b>' + (set.indexOf(g) + 1) + ' of ' + set.length + '</b> in the header'
+        + ' · one is picked each time the page loads'
+      : set.length + ' in the header now · one is picked each time the page loads')
+    + (g.on ? '' : ' · hidden from the rail, which does not affect the header')
+    + '</div></div>' + tog(!!g.hero, 'hero', 'header', undefined, last) + '</div>'
+    + (g.hero ? cropEditor(g) : '')
+}
+
+/* One setting, two cuts. Drag either picture, tap the part that must stay in
+   view (the single-pointer alternative WCAG 2.2 §2.5.7 asks of a drag), arrow
+   keys nudge. Zoom stops where the desktop header would go soft: the source
+   has to cover 1440px at the zoom chosen. */
+function cropEditor (g) {
+  const c = g.crop || CROP0, zmax = zoomMax(g)
+  const w = (PHOTO_DIMS[g.f] || [0])[0]
+  const frame = (k, H) => '<div class="a__crop a__crop--' + k + '" data-crop="' + k + '" '
+    + 'tabindex="0" role="img" aria-label="' + (k === 'desk' ? 'Desktop' : 'Phone')
+    + ' header preview. Drag or use the arrow keys to move the photo." '
+    + 'style="aspect-ratio:' + H.w + ' / ' + H.h + '">'
+    + '<img src="' + PH + g.f + '" alt="" draggable="false" style="' + cropCss(c) + '">'
+    + '<span class="a__cropshade" style="height:' + Math.round(H.band / H.h * 100) + '%"></span>'
+    + '<span class="a__cropghost" aria-hidden="true"><i></i><i></i></span>'
+    + '<span class="a__croptag">' + (k === 'desk' ? 'Desktop' : 'Phone') + '</span></div>'
+  return '<div class="a__cropbox">'
+    + '<span class="a__lab">How it sits in the header</span>'
+    + frame('desk', HERO_DESK)
+    + '<div class="a__croprow">' + frame('phone', HERO_PHONE)
+    + '<div class="a__cropctl"><span class="a__lab" style="margin-top:0">Zoom'
+    + '<span class="a__count" data-zoomval>' + c.z.toFixed(2) + '×</span></span>'
+    + '<input class="a__range" type="range" data-set="heroZoom" min="1" max="' + zmax + '" '
+    + 'step="0.01" value="' + c.z + '" aria-label="Zoom"' + (zmax <= 1 ? ' disabled' : '') + '>'
+    + '<button class="a__btn a__btn--q a__btn--full" data-act="heroReset"'
+    + (isCrop0(c) ? ' disabled style="opacity:.4"' : '') + '>Reset to centre</button></div></div>'
+    + '<p class="a__hint" style="margin:var(--a2) 0 0">Drag either picture to move the photo, or tap '
+    + 'the part that must stay in view. Both screens share one position. The dark band is where '
+    + 'the headline sits.</p>'
+    + (w && w < HERO_DESK.w
+      ? '<div class="a__banner" style="margin:var(--a2) 0 0"><div><b>Small for a big screen</b>'
+        + 'This photo is ' + w + 'px wide and the desktop header is ' + HERO_DESK.w + ', so it will '
+        + 'look soft there and cannot zoom. It is fine on a phone.</div></div>'
+      : '')
+    + '</div>'
+}
 function adminGallery () {
   /* ── One kind at a time ───────────────────────────────────────────────────
      The site shows one rail at a time behind a Photos/Videos control; this
@@ -3251,6 +3718,7 @@ function adminGallery () {
       + (vid ? ' · ' + (sel.wide ? 'standard video' : 'Short') : '')
       + '</div></div>'
       + tog(sel.on, 'tile', 'live') + '</div>'
+      + heroRow(sel)
       /* One move, not three. "Earlier / Later" shifted a photo one place at a
          time — the same O(n) affordance admin-hardening.html §04 measured at 303
          taps, kept alive in the one panel that was supposed to replace it. */
@@ -3260,14 +3728,20 @@ function adminGallery () {
       /* Only his own uploads are his to delete. A synced row would come back
          on the next sync, so offering Delete would be a button that undoes
          itself. */
-      + (sel.src === 'own'
+      /* The last header photo cannot go: the page always draws one. Said in
+         place of the button, so the reason is where the action would be. */
+      + (sel.hero && heroOk(sel) && heroSet(draft).length === 1
+        ? '<span class="a__pos" style="margin-left:auto;align-self:center">In the header'
+          + ' — add another header photo first</span>'
+        : sel.src === 'own'
         ? '<button class="a__btn a__btn--q a__btn--ghost" style="margin-left:auto" '
           + 'data-act="delTile">Delete</button>'
         : '<span class="a__pos" style="margin-left:auto;align-self:center">' + whence
           + ' \u2014 hide it rather than delete</span>')
       + '</div>' + confirmBar() + '</div>' : ''
 
-  const GF = GAL_F.filter(f => f.k !== 'ig' || (S.q.instagram === 'on' && !isVid))
+  const GF = GAL_F.filter(f => f.k === 'hero' ? !isVid
+    : f.k !== 'ig' || (S.q.instagram === 'on' && !isVid))
   const cur = GF.find(f => f.k === galFilter) || GF[0]
   const shown = all.filter(g => cur.f(g) && hit(galQ, g.c))
   const big = all.length > galMax
@@ -3297,6 +3771,7 @@ function adminGallery () {
        Shorts and standard videos, they render differently on the site, and a
        letterboxed still looks identical either way. */
     + (g.kind === 'video' && g.wide ? '<span class="a__meta">standard</span>' : '')
+    + (g.hero && heroOk(g) ? '<span class="a__meta">header</span>' : '')
     + (g.on ? '' : '<span class="a__meta a__meta--off">hidden</span>') + '</div></button>'
 
   /* Two columns, so the editor goes after the last tile of the selected row. */
@@ -3846,7 +4321,17 @@ function whyLine () {
     if (!liveReviews().length) bits.push('the reviews section is absent')
     if (!live.galleryOn || !liveGallery().length) bits.push('the gallery rail is hidden')
     if (S.q.instagram === 'off') bits.push('only his own uploads are in the gallery')
-    bits.push('no price appears anywhere — every card ends in "Get a quote"')
+    bits.push('no price appears anywhere')
+    /* Said from the data, not typed: this read "every card ends in Get a
+       quote" after three of the four had started opening their details. */
+    const svcs = liveServices(), opens = svcs.filter(hasDetails).length
+    if (opens === svcs.length) bits.push('every service tile opens its details')
+    else if (!opens) bits.push('every service tile goes straight to the quote form')
+    else bits.push(opens + ' of ' + svcs.length + ' service tiles open their details, and the '
+      + 'rest go straight to the quote form')
+    const heroes = heroSet(live).length
+    if (heroes > 1) bits.push('the header draws one of ' + heroes + ' photos each time the page loads')
+    else bits.push('the header shows his one header photo')
     return ['', 'Live content', 'Right now: ' + bits.join(', ')
       + '. Change these in Admin, then Publish.']
   }
@@ -3914,25 +4399,119 @@ function go (to, silent) {
      a navigation it would sit above unrelated content asking about something
      that is no longer on screen. */
   confirmAct = null
+  if (here !== to) svcClose()
+  /* Arriving at the page from anywhere else is a page load, so it draws the
+     header photo; moving around within it is not. Preview is a page load of the
+     draft. */
+  if ((to === 'home' || to === 'preview') && here !== to) rollHero()
   here = to; seen.add(to)
   render()
 }
 
 function back () {
+  /* An open sheet is the nearest thing to go back from. */
+  if (svcSheet) { const was = svcClose(); render(); return svcFocus('[data-slug="' + was + '"]') }
   const prev = trail.pop()
   if (!prev) return
   here = prev.s; adminTab = prev.t
   render()
 }
 
+/* ── SVC-2: opening, stepping and closing a sheet ────────────────────────────
+   Opening pushes #slug, so the Back gesture people already use to dismiss
+   anything full-screen closes the sheet instead of leaving the site. Stepping
+   with ‹ › REPLACES that entry, so one Back always closes it however many
+   services were browsed. A sheet opened from a deep link pushed nothing, so
+   closing it clears the address rather than stepping back off the page. */
+/* The services the page being looked at offers details for — the draft's in
+   Preview, which renders the draft. */
+const pageData = () => here === 'preview' ? draft : live
+const detailedOnPage = () => pageData().services.filter(s => s.on && hasDetails(s))
+/* The part of the page in view: the device's scrollport on a phone, the
+   window's slice of the page on desktop. */
+function svcLayerBox () {
+  if (!D()) { const vp = document.getElementById('vp'); return { top:vp.scrollTop, h:vp.clientHeight } }
+  const r = document.getElementById('screen').getBoundingClientRect()
+  const top = Math.max(0, -r.top)
+  return { top:Math.round(top), h:Math.round(Math.max(360, Math.min(innerHeight, r.bottom) - Math.max(0, r.top))) }
+}
+function svcOpen (slug, push) {
+  svcSheet = slug; svcPlay = false; svcBox = svcLayerBox(); svcPushed = false
+  if (push) try { history.pushState({ svc:slug }, '', '#' + slug); svcPushed = true } catch (_) {}
+}
+function svcStep (slug) {
+  svcSheet = slug; svcPlay = false
+  try { history.replaceState({ svc:slug }, '', '#' + slug) } catch (_) {}
+}
+/* `fromHistory`: the browser has already moved, so only the state changes. */
+function svcClose (fromHistory) {
+  if (!svcSheet) return null
+  const was = svcSheet
+  svcSheet = null; svcPlay = false; svcBox = null
+  if (!fromHistory) try {
+    if (svcPushed) history.back()
+    else history.replaceState(null, '', location.pathname + location.search)
+  } catch (_) {}
+  svcPushed = false
+  return was
+}
+const svcFocus = sel => document.querySelector('#screen ' + sel)?.focus({ preventScroll:true })
+addEventListener('popstate', e => {
+  const s = e.state && e.state.svc
+  if (s && (here === 'home' || here === 'preview') && detailedOnPage().some(x => slugOf(x) === s)) {
+    svcOpen(s, false); svcPushed = true          // forward into an entry we pushed
+    render(); return svcFocus('.m__x')
+  }
+  if (svcSheet) { const was = svcClose(true); render(); svcFocus('[data-slug="' + was + '"]') }
+})
+/* A #slug followed while already on the page is a fragment navigation, not a
+   load, so the on-load check never sees it. It made a history entry of its own,
+   so closing steps back over it like a sheet we pushed. Traversing between our
+   own entries fires this too, after popstate has already done the work. */
+addEventListener('hashchange', () => {
+  const s = decodeURIComponent(location.hash.slice(1))
+  if (!s || s === svcSheet || (here !== 'home' && here !== 'preview')) return
+  if (!detailedOnPage().some(x => slugOf(x) === s)) return
+  svcOpen(s, false); svcPushed = true; render(); svcFocus('.m__x')
+})
+/* A point is one line on the site, so its two-row field refuses a newline. */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches?.('[data-svcpt]')) e.preventDefault()
+})
+/* Escape closes; Tab stays inside the sheet, as showModal() keeps it in the
+   build. */
+document.addEventListener('keydown', e => {
+  if (!svcSheet) return
+  if (e.key === 'Escape') { const was = svcClose(); render(); return svcFocus('[data-slug="' + was + '"]') }
+  if (e.key !== 'Tab') return
+  const f = [...document.querySelectorAll('#screen .m__sheet button, #screen .m__sheet iframe')]
+  const i = f.indexOf(document.activeElement)
+  if (i < 0 || (!e.shiftKey && i === f.length - 1) || (e.shiftKey && i === 0)) {
+    e.preventDefault(); f[e.shiftKey ? f.length - 1 : 0]?.focus()
+  }
+})
+
 function render () {
   const act = document.activeElement
   const keepKey = act && act.dataset && SEARCH_SET[act.dataset.set] ? act.dataset.set : null
   const keep = keepKey ? act.selectionStart : null
+  /* The same courtesy for the service details fields, which re-render on every
+     keystroke for the same reason the search boxes do. */
+  const held = act && act.dataset && act.dataset.keep
+    ? [act.dataset.keep, act.selectionStart, act.selectionEnd] : null
   renderSwitches()
   document.getElementById('vp').className = 'vp vp--' + (view === 'desk' ? 'desk' : 'phone')
   document.getElementById('screen').className = 'm' + (view === 'desk' ? ' m--desk' : '')
   document.getElementById('screen').innerHTML = SCREENS[here].r()
+  /* An open sheet locks the scroll under it — the device's on a phone, the
+     window's on desktop, where the window is what scrolls. Decided by whether a
+     layer actually drew, not by the flag: a sheet whose service has just gone
+     (hidden, deleted, a volume switch) draws nothing and must lock nothing. */
+  const layered = !!document.querySelector('#screen .m__layer')
+  if (!layered) svcSheet = null
+  document.getElementById('vp').classList.toggle('vp--lock', layered && view !== 'desk')
+  document.documentElement.classList.toggle('lock', layered && view === 'desk')
+  document.getElementById('screen').classList.toggle('m--layer', layered)
   document.querySelectorAll('.vpsw__b').forEach(b =>
     b.classList.toggle('vpsw__b--on', b.dataset.vp === view))
 
@@ -3945,7 +4524,8 @@ function render () {
       ? '<button class="crumb__b" data-act="crumb" data-to="' + target + '">' + label + '</button>'
       : '<span class="crumb__b crumb__b--now">' + label + '</span>')
     .join('<span class="crumb__sep">›</span>')
-  document.getElementById('back').disabled = trail.length === 0
+  /* An open sheet is somewhere to go back from even with no trail behind it. */
+  document.getElementById('back').disabled = trail.length === 0 && !svcSheet
 
   let g = null
   document.getElementById('map').innerHTML = Object.entries(SCREENS).map(([k, s]) => {
@@ -3965,6 +4545,10 @@ function render () {
     const el = document.querySelector('[data-set="' + keepKey + '"]')
     if (el) { el.focus(); el.setSelectionRange(keep, keep) }
   }
+  if (held) {
+    const el = document.querySelector('[data-keep="' + held[0] + '"]')
+    if (el) { el.focus({ preventScroll:true }); try { el.setSelectionRange(held[1], held[2]) } catch (_) {} }
+  }
   callbar()
 }
 
@@ -3974,7 +4558,8 @@ function render () {
    The build writes a sort_order column here — see admin-hardening.html §07;
    an array index cannot survive a partial page of results. */
 const LISTS = { service: () => draft.services, gallery: () => draft.gallery,
-  tier: () => draft.tiers, area: () => draft.areas }
+  tier: () => draft.tiers, area: () => draft.areas,
+  point: () => (draft.services.find(s => s.id === svcEdit) || {}).pts }
 function moveTo (list, from, to) {
   const arr = LISTS[list](); if (!arr || from < 0 || from >= arr.length) return
   to = Math.max(0, Math.min(arr.length - 1, to))
@@ -4006,6 +4591,76 @@ document.addEventListener('drop', e => {
   dragSrc = null; render()
 })
 document.addEventListener('dragend', () => { if (dragSrc) { dragSrc = null; render() } })
+
+/* ── The header crop ─────────────────────────────────────────────────────────
+   A drag moves the photo with the finger, exactly. For a frame FW wide showing
+   an image rendered RW wide (object-fit: cover) at zoom z, the point under the
+   finger stays under it when x moves by −100·dx / (z·RW − FW). That denominator
+   is how far the photo overhangs the frame, so an axis with no overhang does not
+   move: a landscape photo at zoom 1 fills the desktop frame's width, and there
+   it only moves up and down. Painted in place while dragging — render() would
+   replace the frame under the pointer — and rendered once on release. */
+const clampPct = v => Math.round(Math.max(0, Math.min(100, v)) * 10) / 10
+function cropGeom (f, c) {
+  const img = f.querySelector('img'), FW = f.offsetWidth, FH = f.offsetHeight
+  const IW = img.naturalWidth || FW, IH = img.naturalHeight || FH
+  const s = Math.max(FW / IW, FH / IH), RW = IW * s, RH = IH * s
+  return { FW, FH, RW, RH, ox: c.z * RW - FW, oy: c.z * RH - FH }
+}
+function paintCrop (g) {
+  document.querySelectorAll('#screen [data-crop] img')
+    .forEach(i => { i.style.cssText = cropCss(g.crop) })
+  const v = document.querySelector('#screen [data-zoomval]')
+  if (v) v.textContent = g.crop.z.toFixed(2) + '×'
+}
+const refocusCrop = k =>
+  document.querySelector('#screen [data-crop="' + k + '"]')?.focus({ preventScroll:true })
+document.addEventListener('pointerdown', e => {
+  const f = e.target.closest('#screen [data-crop]'); if (!f) return
+  const g = draft.gallery.find(x => x.id === selTile); if (!g) return
+  e.preventDefault()
+  try { f.setPointerCapture(e.pointerId) } catch (_) {}
+  cropDrag = { f, g, x0:e.clientX, y0:e.clientY, c0:{ ...(g.crop || CROP0) }, moved:false }
+})
+document.addEventListener('pointermove', e => {
+  const d = cropDrag; if (!d) return
+  const r = d.f.getBoundingClientRect(), m = cropGeom(d.f, d.c0)
+  /* Client pixels to layout pixels, in case the device frame is ever scaled. */
+  const dx = (e.clientX - d.x0) * m.FW / r.width, dy = (e.clientY - d.y0) * m.FH / r.height
+  if (!d.moved && Math.hypot(dx, dy) < 4) return
+  d.moved = true
+  d.g.crop = { ...d.c0,
+    x: m.ox > .5 ? clampPct(d.c0.x - 100 * dx / m.ox) : d.c0.x,
+    y: m.oy > .5 ? clampPct(d.c0.y - 100 * dy / m.oy) : d.c0.y }
+  paintCrop(d.g)
+})
+/* A tap without a drag: that point is the one that must stay in view. The
+   image fraction under the finger is p + (U − FW·p) / (z·RW), and making it the
+   focal point pins it at that same fraction of every frame. */
+document.addEventListener('pointerup', e => {
+  const d = cropDrag; if (!d) return
+  cropDrag = null
+  if (!d.moved) {
+    const r = d.f.getBoundingClientRect(), m = cropGeom(d.f, d.c0)
+    const U = (e.clientX - r.left) * m.FW / r.width, V = (e.clientY - r.top) * m.FH / r.height
+    const px = d.c0.x / 100, py = d.c0.y / 100
+    d.g.crop = { ...d.c0,
+      x: clampPct((px + (U - m.FW * px) / (d.c0.z * m.RW)) * 100),
+      y: clampPct((py + (V - m.FH * py) / (d.c0.z * m.RH)) * 100) }
+  }
+  render(); refocusCrop(d.f.dataset.crop)
+})
+document.addEventListener('pointercancel', () => { if (cropDrag) { cropDrag = null; render() } })
+/* Arrow keys move the photo the way a drag in that direction would. */
+const CROP_KEYS = { ArrowLeft:[2, 0], ArrowRight:[-2, 0], ArrowUp:[0, 2], ArrowDown:[0, -2] }
+document.addEventListener('keydown', e => {
+  const f = e.target.closest?.('#screen [data-crop]'); if (!f || !CROP_KEYS[e.key]) return
+  e.preventDefault()
+  const g = draft.gallery.find(x => x.id === selTile), c = g.crop || CROP0
+  const [sx, sy] = CROP_KEYS[e.key]
+  g.crop = { ...c, x: clampPct(c.x + sx), y: clampPct(c.y + sy) }
+  render(); refocusCrop(f.dataset.crop)
+})
 
 let toastT
 function toast (msg) {
@@ -4039,7 +4694,24 @@ document.addEventListener('input', e => {
   if (n && e.target.closest('#screen .m__form')) formVals[n] = e.target.value
   if (n && RULES[n] && e.target.closest('#screen .m__form')
       && (touched[n] || submitAttempted)) paintField(n)
+  /* A service's details and points. Every keystroke renders, the way the search
+     boxes do, with focus and caret kept by data-keep. Rendering on `change`
+     instead would replace the button he is pressing between mousedown and
+     click — blur fires first — and swallow the click. */
+  const sv = svcEdit && draft.services.find(s => s.id === svcEdit)
+  if (sv && e.target.matches('[data-svcdet]')) { sv.det = e.target.value; return render() }
+  if (sv && e.target.matches('[data-svcpt]')) {
+    sv.pts[+e.target.dataset.svcpt] = e.target.value.replace(/\s*\n\s*/g, ' ')   // a paste, too
+    return render()
+  }
   const el = e.target.closest('[data-set]')
+  /* Zoom paints in place while the thumb moves; a render here would replace the
+     slider under it. `change` renders once on release. */
+  if (el && el.dataset.set === 'heroZoom') {
+    const g = draft.gallery.find(x => x.id === selTile)
+    g.crop = { ...(g.crop || CROP0), z: +el.value }
+    return paintCrop(g)
+  }
   if (!el || !SEARCH_SET[el.dataset.set]) return
   SEARCH_SET[el.dataset.set](el.value)
   render()
@@ -4079,6 +4751,10 @@ document.addEventListener('change', e => {
                         else if (v !== 'lost') l.lostReason = null
                         return render() }
   if (k === 'doneTier') { doneSheet.tier = v; return render() }
+  if (k === 'heroZoom') { const g = draft.gallery.find(x => x.id === selTile)
+                          g.crop = { ...(g.crop || CROP0), z: +v }
+                          render()
+                          return document.querySelector('#screen [data-set="heroZoom"]')?.focus() }
   /* Moving the start later can orphan the chosen length, so it comes back to
      the longest that still fits rather than to a value the select cannot show. */
   if (k === 'time') { sheet.start = v
@@ -4118,6 +4794,10 @@ document.addEventListener('click', e => {
   }
 
   if (a === 'reset')   return reset()
+  if (a === 'reload')  { rollHero(); const n = heroSet(live).length
+                         toast(n > 1 ? 'Page reloaded — drawn from ' + n + ' header photos'
+                           : 'Page reloaded — one header photo, so it is always this one')
+                         return here === 'home' ? render() : go('home') }
   if (a === 'back')    return back()
   if (a === 'crumb') {
     const to = b.dataset.to
@@ -4125,8 +4805,19 @@ document.addEventListener('click', e => {
                                  adminTab = to.slice(4); here = 'admin'; return render() }
     return go(to)
   }
-  if (a === 'vp')      { view = b.dataset.vp; return render() }
+  /* The layer is placed for the width it opened at, so a switch closes it. */
+  if (a === 'vp')      { svcClose(); view = b.dataset.vp; return render() }
   if (a === 'galMode') { galMode = b.dataset.mode; return render() }
+  if (a === 'svcOpen') { svcOpen(b.dataset.slug, true); render(); return svcFocus('.m__x') }
+  if (a === 'svcClose') { const was = svcClose(); render()
+                          return svcFocus('[data-slug="' + was + '"]') }
+  if (a === 'svcStep') {
+    const list = detailedOnPage(), i = list.findIndex(s => slugOf(s) === svcSheet)
+    svcStep(slugOf(list[(i + +b.dataset.d + list.length) % list.length])); render()
+    return svcFocus('[data-act="svcStep"][data-d="' + b.dataset.d + '"]')
+  }
+  /* VID-1: the player loads on this tap and not before. */
+  if (a === 'svcPlay') { svcPlay = true; render(); return svcFocus('.m__smedia iframe') }
   /* Send another: clear the whole form state, not just the screen. Leaving
      `touched` behind reddens a fresh empty form on first paint. */
   if (a === 'again') { submitted = false; submitAttempted = false; picked = 0
@@ -4156,7 +4847,10 @@ document.addEventListener('click', e => {
     return
   }
   if (a === 'pics') return
-  if (a === 'toQuote') { if (b.dataset.svc) pickedSvc = b.dataset.svc
+  /* From a sheet, the quote closes it first, so the page is free to scroll to
+     the form with the service already chosen. */
+  if (a === 'toQuote') { svcClose()
+                         if (b.dataset.svc) pickedSvc = b.dataset.svc
                          submitted = false; render()
                          const q = document.querySelector('#screen .m__form')
                          if (q) q.scrollIntoView({ behavior:'smooth', block:'center' })
@@ -4369,17 +5063,59 @@ document.addEventListener('click', e => {
     if (k === 'service') draft.services[i].on = !draft.services[i].on
     else if (k === 'review') draft.reviews[i].on = !draft.reviews[i].on
     else if (k === 'tile') { const g = draft.gallery.find(x => x.id === selTile); g.on = !g.on }
+    /* The switch is disabled on the last header photo; this refuses it anyway,
+       because a rule that lives only in a disabled attribute is one a script
+       can walk past — and the API has to refuse the same request. */
+    else if (k === 'hero') {
+      const g = draft.gallery.find(x => x.id === selTile)
+      if (!heroOk(g)) return render()
+      if (g.hero && heroSet(draft).length === 1)
+        return toast('The header always needs a photo — add another first')
+      g.hero = !g.hero
+      if (g.hero && !g.crop) g.crop = { ...CROP0 }
+    }
     else draft[k] = !draft[k]
     return render()
   }
+  if (a === 'heroReset') { const g = draft.gallery.find(x => x.id === selTile)
+                           g.crop = { ...CROP0 }; return render() }
   if (a === 'startAdd')  { adding = b.dataset.what; return render() }
   if (a === 'cancelAdd') { adding = null; return render() }
   if (a === 'addService') {
     draft.services.push({ id:nextId++, n:'Headlight Restoration',
-      d:'Sanded, polished and sealed so they stop yellowing.', on:true })
+      d:'Sanded, polished and sealed so they stop yellowing.', on:true,
+      det:'', pts:[], media:null })
     adding = null; toast('Service added to the draft'); return render()
   }
-  if (a === 'delService') { draft.services.splice(+b.dataset.idx, 1); return render() }
+  if (a === 'delService') { const gone = draft.services.splice(+b.dataset.idx, 1)[0]
+                            if (gone && gone.id === svcEdit) svcEdit = null
+                            return render() }
+  /* ── A service's details ─────────────────────────────────────────────── */
+  const sv = svcEdit && draft.services.find(s => s.id === svcEdit)
+  if (a === 'svcEdit') { const id = +b.dataset.id
+                         svcEdit = svcEdit === id ? null : id; svcPick = false; svcPickMax = 9
+                         return render() }
+  if (a === 'svcPick') { svcPick = !svcPick; svcPickMax = 9
+                         if (svcPick && sv) { const g = svcMedia(sv, draft)
+                           svcPickKind = g && g.kind === 'video' ? 'video' : 'photo' }
+                         return render() }
+  if (a === 'svcPickKind') { svcPickKind = b.dataset.k; svcPickMax = 9; return render() }
+  if (a === 'svcPickMore') { svcPickMax += 25; return render() }
+  if (a === 'svcMedia')    { sv.media = +b.dataset.id; svcPick = false; return render() }
+  if (a === 'svcMediaOff') { sv.media = null; return render() }
+  if (a === 'ptAdd') { if (sv.pts.length >= SVC_POINTS) return
+                       sv.pts.push(''); render()
+                       return svcFocus('[data-keep="pt-' + sv.id + '-' + (sv.pts.length - 1) + '"]') }
+  if (a === 'ptDel') { sv.pts.splice(+b.dataset.idx, 1); return render() }
+  if (a === 'ptTop') { moveTo('point', +b.dataset.idx, 0); return render() }
+  /* LINK-1. The address that opens this service on the site — the thing he
+     texts a customer who asked about it. */
+  if (a === 'svcLink') {
+    const url = 'https://ngldetailcoating.com/#' + slugOf(sv)
+    try { navigator.clipboard.writeText(url) } catch (_) {}
+    return toast(hasDetails(sv) ? 'Copied — ' + url.replace('https://', '')
+      : 'Copied — it opens the page; add details for it to open this service')
+  }
   /* Exactly one tier is most popular — marking another MOVES the label. */
   if (a === 'tierPop')  { draft.tiers.forEach((t, i) => { t.pop = i === +b.dataset.idx })
                           return render() }
@@ -4420,15 +5156,26 @@ document.addEventListener('click', e => {
   if (a === 'ytOpen')   { ytOpen = !ytOpen; return render() }
   if (a === 'delTile')  {
     const g = draft.gallery.find(x => x.id === selTile)
+    if (g.hero && heroOk(g) && heroSet(draft).length === 1)
+      return toast('The header always needs a photo \u2014 add another first')
     /* Draft-only deletes stay instant \u2014 not publishing is the undo. This one
-       asks only when the live site is already serving the photo. */
-    const onSite = live.gallery.some(x => x.id === selTile && x.on) && live.galleryOn
-    if (!onSite) { draft.gallery = draft.gallery.filter(x => x.id !== selTile)
-                   selTile = null; return render() }
+       asks only when the live site is already serving the photo \u2014 in the rail,
+       or in the header, which serves it whether or not the rail does. */
+    const was = live.gallery.find(x => x.id === selTile)
+    const inRail = !!was && was.on && live.galleryOn
+    const inHeader = !!was && !!was.hero && heroOk(was)
+    /* MEDIA-1: a service's details can show this. Deleting it would empty
+       that slot without a word, so it asks and names the service. */
+    const usedBy = draft.services.filter(s => s.media === selTile).map(s => s.n)
+    if (!inRail && !inHeader && !usedBy.length) { dropGalleryItem(selTile)
+                                                   selTile = null; return render() }
+    const where = [inRail && 'live in the gallery', inHeader && 'one of the header photos',
+      usedBy.length && 'shown in the details of ' + usedBy.join(' and ')].filter(Boolean)
     confirmAct = { act:'delTile', id:selTile, yes:'Delete it',
-      title:'This photo is on the site now',
-      body:'\u201c' + g.c + '\u201d is live in the gallery. Deleting it here removes it from '
-        + 'the site at your next Publish, and the file goes with it.' }
+      title:inRail || inHeader ? 'This ' + (g.kind === 'video' ? 'clip' : 'photo') + ' is on the site now'
+        : 'A service uses this ' + (g.kind === 'video' ? 'clip' : 'photo'),
+      body:'\u201c' + g.c + '\u201d is ' + where.join(', and ') + '. Deleting it here removes it '
+        + 'from the site at your next Publish, and the file goes with it.' }
     return render()
   }
   if (a === 'pickOn')  { galPick = []; selTile = null; return render() }
@@ -4514,7 +5261,7 @@ document.addEventListener('click', e => {
     if (c.act === 'delAppt') { appts = appts.filter(x => x.id !== c.id); sheet = null
                                adminTab = 'Schedule'; toast('Removed from your calendar')
                                return go('admin') }
-    if (c.act === 'delTile') { draft.gallery = draft.gallery.filter(g => g.id !== c.id)
+    if (c.act === 'delTile') { dropGalleryItem(c.id)
                                selTile = null; toast('Deleted from the draft'); return render() }
     if (c.act === 'disconnect') { S.q.instagram = 'off'; selTile = null
                                   toast('Disconnected'); return render() }
@@ -4531,5 +5278,14 @@ document.addEventListener('click', e => {
 })
 
 reset()
+
+/* LINK-1. Arriving at #slug opens that service, the way a link Mason texted a
+   customer would. A slug for a service that is hidden, has no details or is
+   gone opens nothing — no error state, because there is nothing for the
+   visitor to do about it. */
+;(() => {
+  const s = decodeURIComponent(location.hash.slice(1))
+  if (s && detailedOnPage().some(x => slugOf(x) === s)) { svcOpen(s, false); render() }
+})()
 </script>
 </html>
