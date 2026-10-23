@@ -441,6 +441,10 @@ html.lock{overflow:hidden}
 .m__step::before{counter-increment:s;content:counter(s);flex:0 0 auto;width:19px;height:19px;
   border-radius:999px;background:var(--m-accent-strong);color:var(--m-on-accent);
   font:800 10px/1 var(--m-sans);display:grid;place-items:center;margin-top:1px}
+/* The process lives inside the coating packages section, under the tiers it
+   explains, so it takes a sub-heading rather than a kicker and h2 of its own. */
+.m__h3{font-size:14px;font-weight:750;letter-spacing:-.01em;line-height:1.25;
+  color:var(--m-ink);margin-top:20px}
 .m__shotcap{position:absolute;left:0;right:0;bottom:0;margin:0;padding:44px 10px 9px;
   font:750 10px/1.3 var(--m-sans);letter-spacing:.055em;text-transform:uppercase;color:#fff;
   text-shadow:0 1px 2px rgba(0,0,0,.5);
@@ -464,7 +468,8 @@ html.lock{overflow:hidden}
 .m--desk .m__hero-sub{font-size:16px;max-width:50ch;margin-bottom:22px}
 .m--desk .m__accred{margin-top:16px;padding:12px 18px 12px 14px;gap:14px}
 .m--desk .m__sx{height:46px}
-.m--desk .m__steps{flex-direction:row;gap:16px;margin-top:26px}
+.m--desk .m__h3{font-size:16px;margin-top:40px}
+.m--desk .m__steps{flex-direction:row;gap:16px;margin-top:16px}
 .m--desk .m__step{flex:1 1 0;flex-direction:column;align-items:flex-start;gap:10px;
   font-size:12.5px;background:var(--m-card);border:1px solid var(--m-line);
   border-radius:var(--m-r);padding:16px}
@@ -566,7 +571,10 @@ html.lock{overflow:hidden}
    otherwise reset it. */
 .m__ft{padding:14px 14px 78px;background:var(--m-ft);color:var(--m-ft-ink);
   font-size:11px;line-height:1.7}
-.m__ftlink{display:inline-flex;align-items:center;min-height:44px;font-size:13.5px;
+/* The 44px is the tap target, not the layout. Centred in it, the value sat 18px
+   under its label where every plain value beside it sat 6px under, and the
+   negative margins hand that height back to the line. */
+.m__ftlink{display:inline-flex;align-items:center;min-height:44px;margin:-13px 0;font-size:13.5px;
   color:var(--m-accent-text);font-weight:700;background:none;border:0;padding:0}
 .m__bar{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--m-hdr);
   border-bottom:1px solid var(--m-line);font-size:11px;color:var(--m-ink-2)}
@@ -2022,6 +2030,21 @@ function screenHome () {
         + (t.pop ? '<span class="m__tierflag">Most popular</span>' : '')
         + '<div class="m__tiern">' + t.n + '</div>'
         + '<p>' + t.d + '</p><span class="m__cta">Get a quote →</span></button>').join('')
+      + '</div>'
+      /* How a coating job runs. It was a section of its own, two below the tiers
+         with the gallery between them, under an h2 that was a count ("Five
+         stages") rather than a reason to read on. It answers "what am I paying
+         for", so it sits under the choice it explains, and hides with the tiers
+         when there are none. Not admin-editable, deliberately: the steps are
+         copy, and admin-spec.md's §05 keeps structure and copy out of the admin
+         because the measured page height depends on them. These five are
+         placeholders until Mason confirms his process — client-questions.md §10. */
+      + '<h3 class="m__h3">How a coating job runs</h3>'
+      + '<div class="m__steps">'
+      + ['Deep contamination wash', 'Iron deposit and tar removal',
+         'Clay bar to lift embedded contaminants', 'One or two stage paint correction',
+         'Coating applied to body, glass and wheels']
+        .map(x => '<div class="m__step">' + x + '</div>').join('')
       + '</div>') + '</div>' : '')
 
     + '<div class="m__sec m__sec--alt">' + inner('<div class="m__kick">Recent jobs</div>'
@@ -2074,18 +2097,6 @@ function screenHome () {
         : '<div class="m__empty">Nothing published yet — the rail hides itself rather than '
           + 'showing an empty row.</div>')) + '</div>'
 
-    /* "How a coating job runs". Not admin-editable, deliberately: the five
-       stages are copy, and admin-spec.md's §05 keeps structure and copy out of
-       the admin because the measured page height depends on them. */
-    + '<div class="m__sec">' + inner('<div class="m__kick">How a coating job runs</div>'
-      + '<h2 class="m__h2">Five stages</h2>'
-      + '<div class="m__steps">'
-      + ['Deep contamination wash', 'Iron deposit and tar removal',
-         'Clay bar to lift embedded contaminants', 'One or two stage paint correction',
-         'Coating applied to body, glass and wheels']
-        .map(x => '<div class="m__step">' + x + '</div>').join('')
-      + '</div>') + '</div>'
-
     + (revs.length ? '<div class="m__sec m__sec--alt">' + inner('<div class="m__kick">What customers say</div>'
       + '<h2 class="m__h2">Reviews</h2>'
       /* The Google pill lost its home when the trust strip went, and a rating
@@ -2129,10 +2140,13 @@ function screenHome () {
           /* The mock echoes the request back. Someone who has just typed their
              car and their number wants to see that the right thing arrived. */
           + '<div class="m__recap">' + recapLine() + '</div></div>'
-        /* Two columns on desktop, stacked on a phone: the form, and an aside
-           for the people who would rather just ring. The map lives HERE as
-           well as in the footer, because this is where someone decides between
-           filling a form in and driving over. */
+        /* Two columns on desktop: the form, and an aside for the people who
+           would rather just ring. Phone gets the form alone. By the time a
+           phone reaches this section the call bar is already up saying "Call
+           now", and the footer repeats the number, hours and address one
+           section later, so the aside was the third copy and cost 191px.
+           Desktop has neither the bar nor a sticky header, so there the aside
+           is the only number in view of the form, and it carries the map. */
         : '<div class="m__quotecol"><div class="m__form">'
           + '<div class="m__in--row">'
           + fld('Year', 'year', '2023', ' inputmode="numeric" maxlength="4"')
@@ -2167,28 +2181,28 @@ function screenHome () {
           + fld('Anything we should know?', 'note', 'Anything we should know?')
           + '<button class="m__submit" data-act="submitQuote">Get my quote</button>'
           + '<span class="m__err m__err--sum"></span></div>'
-          + '<div class="m__aside">'
-          + '<div class="m__asideh">Rather just call?</div>'
-          + '<p><button class="m__ftlink" data-act="call" style="color:var(--m-accent-text);'
-          + 'font-weight:700">' + (live.biz.phone || TEL) + '</button><br>' + hoursLine() + '</p>'
-          + '<div class="m__asideh" style="margin-top:12px">Drop in</div>'
-          + '<p>' + addressLine().replace(', ', '<br>') + '</p>'
-          /* The map lives HERE on desktop and in the footer on a phone — which
-             is exactly what the two approved mocks do, one each. Rendering it
-             in both places put it on the page twice. */
-          + (D() ? '<div class="m__map"></div>'
-                 + '<p class="m__mapattr">Map: Esri, OpenStreetMap contributors</p>' : '')
-          + '</div></div>'))
+          + (D() ? '<div class="m__aside">'
+            + '<div class="m__asideh">Rather just call?</div>'
+            + '<p><button class="m__ftlink" data-act="call">' + (live.biz.phone || TEL)
+            + '</button><br>' + hoursLine() + '</p>'
+            + '<div class="m__asideh" style="margin-top:12px">Drop in</div>'
+            + '<p>' + addressLine().replace(', ', '<br>') + '</p>'
+            /* The map lives HERE on desktop and in the footer on a phone — which
+               is exactly what the two approved mocks do, one each. Rendering it
+               in both places put it on the page twice. */
+            + '<div class="m__map"></div>'
+            + '<p class="m__mapattr">Map: Esri, OpenStreetMap contributors</p></div>' : '')
+          + '</div>'))
     + '</div>'
 
-    /* "Keep up with it". Social sits AFTER the quote form and in the footer,
-       never in the header — his current site puts four icons at the top, whose
-       only job is to send a visitor to Instagram before they know what the
-       business does. README, "Work gallery and social". */
-    + '<div class="m__sec m__sec--alt">' + inner('<div class="m__kick">Keep up with it</div>'
-      + '<h2 class="m__h2">New cars most days</h2>'
-      + '<p class="m__p">The shop posts finished jobs as they go out. Easiest way to see '
-      + 'current work.</p>'
+    /* Social sits AFTER the quote form, never in the header — his current site
+       puts four icons at the top, whose only job is to send a visitor to
+       Instagram before they know what the business does. README, "Work gallery
+       and social". A label and the buttons, nothing more: it used to add an h2
+       and a paragraph, and the h2 ("New cars most days") promised a posting
+       rate nobody had checked. The gallery above already says where the rest
+       of the work lives. */
+    + '<div class="m__sec m__sec--alt">' + inner('<div class="m__kick">Follow the shop</div>'
       /* All four gated on the record, not three gated and one hardcoded. An
          account with no handle gets no tile — "don't offer what isn't there"
          applies to a social link as much as to a button. The mock draws four
@@ -2204,15 +2218,15 @@ function screenHome () {
     + '<div class="m__ft">' + inner(
       '<img class="m__logo" src="' + logoFor(GROUND.ft) + '" alt="NGL Detail &amp; Coating">'
       + '<div class="m__ft-grid">'
-      + '<div><strong>Call</strong><br><button class="m__ftlink" data-act="call" '
-      + 'style="color:var(--m-accent-text);font-weight:700">' + (live.biz.phone || TEL)
-      + '</button></div>'
+      + '<div><strong>Call</strong><br><button class="m__ftlink" data-act="call">'
+      + (live.biz.phone || TEL) + '</button></div>'
       + '<div><strong>Hours</strong><br>' + hoursLine()
       + (nextExc() ? '<br><span style="color:var(--m-ink-3)">' + nextExc() + '</span>' : '')
       + '</div>'
       + '<div><strong>Visit</strong><br>' + addressLine().replace(', ', '<br>') + '</div>'
-      + '<div><strong>Email</strong><br><span style="color:var(--m-accent-text);'
-      + 'font-weight:700">' + (live.biz.email || 'info@ngldetailcoating.com') + '</span></div>'
+      /* It was coloured and bolded like a link and was not one. */
+      + '<div><strong>Email</strong><br><button class="m__ftlink" data-act="email">'
+      + emailOf() + '</button></div>'
       + '</div>'
       /* Real tiles, stitched from Esri Dark Gray Canvas. Attribution renders
          under every map panel. The pin is approximate until Mason confirms.
@@ -2284,6 +2298,7 @@ const addressLine = () => {
   const bits = [b.street, b.city, b.region].filter(Boolean).join(', ')
   return bits ? bits + (b.postal ? ' ' + b.postal : '') : '182 Scenic Hwy N, Lawrenceville GA'
 }
+const emailOf = () => live.biz.email || 'info@ngldetailcoating.com'
 /* FIX-6 — the service area in words. Also JSON-LD areaServed in the build. */
 const areasLine = () => {
   const a = live.areas.map(x => x.n)
@@ -4860,6 +4875,7 @@ document.addEventListener('click', e => {
                              if (d) d.scrollIntoView({ behavior:'smooth', block:'center' })
                              return }
   if (a === 'call')    return toast('tel:+16787401506 — a real link on every screen')
+  if (a === 'email')   return toast('mailto:' + emailOf() + ' — a real link in the build')
   if (a === 'sms')     return toast('sms: prefilled with the booking link')
 
   if (a === 'tab') {
